@@ -3,7 +3,6 @@ import Link from "next/link";
 import NavLinks from "./nav-links";
 import logoImage from "../assets/images/logo-1-2.png";
 import { ethers } from 'ethers';
-import detectEthereumProvider from '@metamask/detect-provider';
 
 const HeaderTwo = () => {
   const [sticky, setSticky] = useState(false);
@@ -11,7 +10,7 @@ const HeaderTwo = () => {
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [userBalance, setUserBalance] = useState(null);
   const [connButtonText, setConnButtonText] = useState('Connect Wallet');
-  const [provider, setProvider] = useState(null);
+  const [clipBoardText, setClipBoardText] = useState('Copy to clipboard');
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -23,10 +22,28 @@ const HeaderTwo = () => {
   });
 
   const connectWalletHandler = () => {
-    if (window.ethereum && defaultAccount == null) {
+    if (window.ethereum && defaultAccount == null) {  // Provider detected
       console.log('provider detected');
-    } else {
-      console.error("Please install MetaMask!", error);
+
+      // Set ethers provider
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      // MetaMask requires requesting permission to connect users' accounts
+      provider.send("eth_requestAccounts", []).then((accounts) => {
+        if (accounts.length > 0) {
+          setDefaultAccount(accounts[0]);
+          setConnButtonText(accounts[0].substr(0, 5) + '...' + accounts[0].substr(41 - 5, 5));
+          console.log(accounts[0]);
+        }
+      }).catch((e) => {
+        console.log(e);
+      })
+    } else if (window.ethereum && defaultAccount) {   // Already connected
+      setClipBoardText('Copied!');
+      navigator.clipboard.writeText(defaultAccount);
+    } else {    // MetaMask not installed
+      console.log("Please install MetaMask!");
+      alert("Please install MetaMask!!");
     }
   }
 
@@ -56,6 +73,10 @@ const HeaderTwo = () => {
     });
   };
 
+  const outFun = () => {
+    setClipBoardText("Copy to clipboard");
+  }
+
   return (
     <header className="site-header header-one home-page-two">
       <nav
@@ -81,13 +102,14 @@ const HeaderTwo = () => {
             <NavLinks />
           </div>
           <div className="right-side-box">
-            <a href='javascript:void(0)' onClick={connectWalletHandler} className="header-btn">
+            <a href='#!' onClick={connectWalletHandler} className="header-btn" onMouseOut={outFun}>
+              <span id="tooltip" className={defaultAccount ? "tooltip-text" : " "}>{defaultAccount ? clipBoardText : ""}</span>
               {connButtonText}
             </a>
           </div>
         </div>
       </nav>
-    </header>
+    </header >
   );
 };
 
