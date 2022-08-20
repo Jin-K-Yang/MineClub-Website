@@ -7,3 +7,4 @@ npm run start
 ```
 # Modified Code
 [/components/header-two.js](/components/header-two.js)
+[/components/banner-two.js](/components/banner-two.js)
