@@ -39,10 +39,10 @@ const bannertwo = () => {
     let chainId = await window.ethereum.request({ method: "eth_chainId" });
     console.log("Chain Id:", chainId);
 
-    const rinkebyChainId = '0x4';
+    const goerliChainId = '0x5';
 
-    if (chainId !== rinkebyChainId) {
-      alert("Please switch to rinkeby network.");
+    if (chainId !== goerliChainId) {
+      alert("Please switch to goerli network.");
     }
   }
 
